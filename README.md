@@ -1,15 +1,15 @@
-# not-general-number-field-sieve
+# Pozzo
 
-It's definitely not a GNFS.
+[**Think! Stop! Forward! Think!**](https://www.sensortime.com/think_pig.html)
 
 ## Lucky-number sparse-family search
 
-This is a Rust backend for testing sparse integer families for lucky-number
-membership. It started as a base-10 repdigit search, but the membership engine is
-family-independent: each candidate is tracked by survivor rank through the lucky
-sieve.
+This code tests sparse integer families for lucky-number
+membership. 
 
-The searched families are hardcoded in `main.rs`:
+It discovered:
+
+(table of OEIS sequence -> new values)
 
 - `repdigit`: decimal repdigits, OEIS A031882.
 - `mersenne`: numbers of the form `2^k - 1`, OEIS A057613 intersection target.
@@ -42,16 +42,6 @@ survivors.
 
 ```sh
 cargo test
-cargo run --release
-cargo run --release -- --memory-mib 2048 --sieve-limit 10000000000
-cargo run --release -- --min 1000000000 --threads 8 --scan-threshold 0
+cargo run --release -- --memory-mib 2048
+./repdigit --memory-mib 114688
 ```
-
-Defaults live as constants at the top of `src/main.rs`; `clap` exposes the same
-values as `--min`, `--max`, `--memory-mib`, `--sieve-limit`, `--scan-threshold`,
-and `--threads`. The sieve allocation is a single attempt; if the requested
-memory does not fit, the program exits with an allocation error.
-
-Set `--scan-threshold 0` to disable the scan/rebuild deletion path for
-comparison. Values above `2048` are ignored by the packed transition-table
-implementation.
