@@ -43,5 +43,5 @@ survivors.
 ```sh
 cargo test
 cargo run --release -- --memory-mib 2048
-./repdigit --memory-mib 114688
+./pozzo --memory-mib 114688
 ```
