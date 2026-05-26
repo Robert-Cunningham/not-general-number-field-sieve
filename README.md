@@ -1,7 +1,8 @@
 <div align="center">
   <h1>Pozzo: A Fast Lucky Number Checker</h1>
-  <p><sub><a href="https://www.sensortime.com/think_pig.html"><em>"Think, pig!"</em></a></sub></p>
-  <p>Pozzo tests large integers for luckiness. It is dramatically more efficient than its predecessors, increasing the number of values searched for the below OEIS sequences by a <em>factor</em> of between 1,000 and 100,000,000.</p>
+  <!-- <p><a href=""><em>"Think, pig!"</em></a></p> -->
+  <p><em>"Think, pig!"</em></p>
+  <p>Pozzo tests large integers for luckiness. It is dramatically more efficient than its predecessors, increasing the number of values searched for the below lucky-number OEIS sequences by a <em>factor</em> of between 1,000 and 100,000,000.</p>
 </div>
 
 
@@ -12,14 +13,13 @@
 
 After spending several hackathons making things like "Uber for dogs with hearing loss", I decided that my next project would be an off-the-shelf integer. It was a very [Duchamp](https://en.wikipedia.org/wiki/Fountain_(Duchamp)) era of my life.
 
-I started this in 2019 and would certainly not have finished it without 2026-era coding agents, to whom most credit is due.
-
+I wanted to extend an OEIS sequence, but which one? Ideally one where the values are rare enough to be exciting, but not so rare that we can't find a new one. Lucky numbers are distributed like $\log^{-1}(p)$, so sequences involving intersections with lucky numbers make reasonable targets. For example, [A057613](https://oeis.org/A057613) (lucky numbers of the form `2^k - 1`) is very promising.
 
 ## Main Idea
 
-To check `k` numbers for luckiness, we maintain a fenwick tree over `k` bits, where each node counts the number of set bits in its range. By traversing this tree, we can very quickly look up and unset the `i`th set bit.
+To check `k` numbers for luckiness, we maintain a Fenwick tree over `k` bits, where each node counts the number of set bits in its range. By traversing this tree, we can very quickly look up and unset the `i`th set bit.
 
-Memory constrains the size of the sieve. The sieve requires two bits per odd integer (one bit for the bitset, and one amortized bit for the fenwick tree). This averages out to one integer per bit of RAM.
+Memory constrains the size of the sieve. The sieve requires two bits per odd integer (one bit for the bitset, and one amortized bit for the Fenwick tree). This averages out to one integer per bit of RAM.
 
 Note that this does not bound the maximum size of the numbers we can prove lucky; we can prove luckiness of candidates much higher than the sieve limit, with the following algorithm:
 
@@ -66,6 +66,12 @@ The reported run took about 12 hours on a machine with 128GB of RAM. The sieve c
 cargo test
 cargo run --release -- --memory-mib 114688
 ```
+
+## What's with the name?
+From *[Waiting for Godot](https://www.sensortime.com/think_pig.html)*.
+
+## Credit
+I started this in 2019 and would certainly not have finished it without 2026-era coding agents, to whom most credit is due.
 
 ## Sequences
 Bold values are newly discovered.
