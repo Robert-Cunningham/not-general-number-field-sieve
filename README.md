@@ -5,24 +5,82 @@ Pozzo tests large integers for lucky-number membership. It is very fast, searchi
 
 Bold values are newly discovered.
 
-| OEIS | Family | Values | Old bound | New bound | Improved by |
-| --- | --- | --- | --- | --- | --- |
-| [A031882](https://oeis.org/A031882) | `repdigit` | 1, 3, 7, 9, 33, 99, 111, 777, 9999, 33333, 55555, 111111, 777777, 7777777, 55555555, **777777777777**, **9999999999999** | `a(16) > 10^9` | `a(18) >= 777777777777777` | $8 * 10^5$ |
-| [A057613](https://oeis.org/A057613) | `mersenne` | 1, 3, 7, 15, 31, 63, 127, 511, 1023, 4095, 8191, 131071, 524287, 2097151, 4194303, 8388607, 33554431, 67108863, 8589934591, **68719476735**, **1099511627775**, **4398046511103** | `a(20) >= 17179869183` | `a(23) >= 562949953421311` | $3 * 10^4$ |
-| [A057612](https://oeis.org/A057612) | `mersenne-prime-exp` | 3, 7, 31, 127, 8191, 131071, 524287, 8388607 | `a(9) > 2^31 - 1` | `a(9) >= 576460752303423487` | $3 * 10^8$ |
-| [A057589](https://oeis.org/A057589) | `fibonacci` | 1, 3, 13, 21, 1597, 6765, 75025, **32951280099** | `a(8) >= 12586269025` | `a(9) >= 72723460248141` | $6 * 10^3$ |
-| [A306632](https://oeis.org/A306632) | `lucas` | 1, 3, 7, 3571, 9349, 710647, 12752043 | `a(8) >= 10^9` | `a(8) >= 100501350283429` | $1 * 10^5$ |
-| [A140285](https://oeis.org/A140285) | `tetranacci` | 1, 15, 10671, **274423830033** | `a(4) >= 10312882481` | `a(5) >= 194314552299285` | $2 * 10^4$ |
-| [A118569](https://oeis.org/A118569) | `consecutive-digits` | 21, 43, 67, 87, 321, 4321, 4567, 6789, 78901, 432109, 9012345, 67890123, 109876543, 123456789, 6543210987, 8901234567, **9876543210987** | `a(17) >= 10^10` | `a(18) >= 123456789012345` | $1 * 10^4$ |
+## Lucky Repdigits ([A031882](https://oeis.org/A031882))
 
-- `repdigit`: decimal repdigits, OEIS A031882.
-- `mersenne`: numbers of the form `2^k - 1`, OEIS A057613 intersection target.
-- `mersenne-prime-exp`: `2^p - 1` for prime `p`, OEIS A057612 intersection target.
-- `fibonacci`: Fibonacci candidates, OEIS A057589 intersection target.
-- `lucas`: Lucas candidates, OEIS A306632 intersection target.
-- `tetranacci`: tetranacci candidates, OEIS A140285 intersection target.
-- `consecutive-digits`: ascending/descending cyclic consecutive decimal digits,
-  OEIS A118569 intersection target.
+1, 3, 7, 9, 33, 99, 111, 777, 9999, 33333, 55555, 111111,
+777777, 7777777, 55555555, **777777777777**, **9999999999999**.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(16) > 10^9` | `a(18) >= 777777777777777` | $8 * 10^5$ |
+
+Lucky decimal repdigits.
+
+## Lucky Mersennes ([A057613](https://oeis.org/A057613))
+
+1, 3, 7, 15, 31, 63, 127, 511, 1023, 4095, 8191, 131071,
+524287, 2097151, 4194303, 8388607, 33554431, 67108863, 8589934591,
+**68719476735**, **1099511627775**, **4398046511103**.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(20) >= 17179869183` | `a(23) >= 562949953421311` | $3 * 10^4$ |
+
+Lucky numbers of the form `2^k - 1`.
+
+## Lucky Mersennes With Prime Exponent ([A057612](https://oeis.org/A057612))
+
+3, 7, 31, 127, 8191, 131071, 524287, 8388607.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(9) > 2^31 - 1` | `a(9) >= 576460752303423487` | $3 * 10^8$ |
+
+Lucky numbers of the form `2^p - 1` for prime `p`.
+
+## Lucky Fibonacci Numbers ([A057589](https://oeis.org/A057589))
+
+1, 3, 13, 21, 1597, 6765, 75025, **32951280099**.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(8) >= 12586269025` | `a(9) >= 72723460248141` | $6 * 10^3$ |
+
+Lucky Fibonacci numbers.
+
+## Lucky Lucas Numbers ([A306632](https://oeis.org/A306632))
+
+1, 3, 7, 3571, 9349, 710647, 12752043.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(8) >= 10^9` | `a(8) >= 100501350283429` | $1 * 10^5$ |
+
+Lucky Lucas numbers.
+
+## Lucky Tetranacci Numbers ([A140285](https://oeis.org/A140285))
+
+1, 15, 10671, **274423830033**.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(4) >= 10312882481` | `a(5) >= 194314552299285` | $2 * 10^4$ |
+
+Lucky tetranacci numbers.
+
+## Lucky Consecutive-Digit Numbers ([A118569](https://oeis.org/A118569))
+
+21, 43, 67, 87, 321, 4321, 4567, 6789, 78901, 432109, 9012345,
+67890123, 109876543, 123456789, 6543210987, 8901234567,
+**9876543210987**.
+
+| Old bound | New bound | Factor more searched |
+| --- | --- | --- |
+| `a(17) >= 10^10` | `a(18) >= 123456789012345` | $1 * 10^4$ |
+
+Lucky numbers with ascending or descending cyclic consecutive decimal digits.
+
+## Method
 
 The membership test tracks the candidate's survivor rank:
 
