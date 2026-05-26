@@ -13,7 +13,7 @@
 
 After spending several hackathons making things like "Uber for dogs with hearing loss", I decided that my next project would be an off-the-shelf integer. It was a very [Duchamp](https://en.wikipedia.org/wiki/Fountain_(Duchamp)) era of my life.
 
-I wanted to extend an OEIS sequence, but which one? Ideally one where the values are rare enough to be exciting, but not so rare that we can't find a new one. Lucky numbers are distributed like $\log^{-1}(p)$, so sequences involving intersections with lucky numbers make reasonable targets. For example, [A057613](https://oeis.org/A057613) (lucky numbers of the form `2^k - 1`) is very promising.
+I wanted to extend an [OEIS](https://oeis.org/) sequence, but which one? Ideally one where the values are rare enough to be exciting, but not so rare that we can't find a new one. Lucky numbers are distributed like $\log^{-1}(p)$, so sequences involving intersections with lucky numbers make reasonable targets. For example, [A057613](https://oeis.org/A057613) (lucky numbers of the form `2^k - 1`) is very promising.
 
 ## Main Idea
 
