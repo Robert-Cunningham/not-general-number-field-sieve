@@ -5,80 +5,94 @@ Pozzo tests large integers for lucky-number membership. It is very fast, searchi
 
 Bold values are newly discovered.
 
-## Lucky Repdigits ([A031882](https://oeis.org/A031882))
+## Lucky Repdigits
 
 1, 3, 7, 9, 33, 99, 111, 777, 9999, 33333, 55555, 111111,
 777777, 7777777, 55555555, **777777777777**, **9999999999999**.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(16) > 10^9` | `a(18) >= 777777777777777` | $8 * 10^5$ |
+Lucky decimal repdigits. ([A031882](https://oeis.org/A031882))
 
-Lucky decimal repdigits.
+Old bound: `a(16) > 10^9`
 
-## Lucky Mersennes ([A057613](https://oeis.org/A057613))
+New bound: `a(18) >= 777777777777777`
+
+Factor more searched: $8 * 10^5$
+
+## Lucky Mersennes
 
 1, 3, 7, 15, 31, 63, 127, 511, 1023, 4095, 8191, 131071,
 524287, 2097151, 4194303, 8388607, 33554431, 67108863, 8589934591,
 **68719476735**, **1099511627775**, **4398046511103**.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(20) >= 17179869183` | `a(23) >= 562949953421311` | $3 * 10^4$ |
+Lucky numbers of the form `2^k - 1`. ([A057613](https://oeis.org/A057613))
 
-Lucky numbers of the form `2^k - 1`.
+Old bound: `a(20) >= 17179869183`
 
-## Lucky Mersennes With Prime Exponent ([A057612](https://oeis.org/A057612))
+New bound: `a(23) >= 562949953421311`
+
+Factor more searched: $3 * 10^4$
+
+## Lucky Mersennes With Prime Exponent
 
 3, 7, 31, 127, 8191, 131071, 524287, 8388607.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(9) > 2^31 - 1` | `a(9) >= 576460752303423487` | $3 * 10^8$ |
+Lucky numbers of the form `2^p - 1` for prime `p`. ([A057612](https://oeis.org/A057612))
 
-Lucky numbers of the form `2^p - 1` for prime `p`.
+Old bound: `a(9) > 2^31 - 1`
 
-## Lucky Fibonacci Numbers ([A057589](https://oeis.org/A057589))
+New bound: `a(9) >= 576460752303423487`
+
+Factor more searched: $3 * 10^8$
+
+## Lucky Fibonacci Numbers
 
 1, 3, 13, 21, 1597, 6765, 75025, **32951280099**.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(8) >= 12586269025` | `a(9) >= 72723460248141` | $6 * 10^3$ |
+Lucky Fibonacci numbers. ([A057589](https://oeis.org/A057589))
 
-Lucky Fibonacci numbers.
+Old bound: `a(8) >= 12586269025`
 
-## Lucky Lucas Numbers ([A306632](https://oeis.org/A306632))
+New bound: `a(9) >= 72723460248141`
+
+Factor more searched: $6 * 10^3$
+
+## Lucky Lucas Numbers
 
 1, 3, 7, 3571, 9349, 710647, 12752043.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(8) >= 10^9` | `a(8) >= 100501350283429` | $1 * 10^5$ |
+Lucky Lucas numbers. ([A306632](https://oeis.org/A306632))
 
-Lucky Lucas numbers.
+Old bound: `a(8) >= 10^9`
 
-## Lucky Tetranacci Numbers ([A140285](https://oeis.org/A140285))
+New bound: `a(8) >= 100501350283429`
+
+Factor more searched: $1 * 10^5$
+
+## Lucky Tetranacci Numbers
 
 1, 15, 10671, **274423830033**.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(4) >= 10312882481` | `a(5) >= 194314552299285` | $2 * 10^4$ |
+Lucky tetranacci numbers. ([A140285](https://oeis.org/A140285))
 
-Lucky tetranacci numbers.
+Old bound: `a(4) >= 10312882481`
 
-## Lucky Consecutive-Digit Numbers ([A118569](https://oeis.org/A118569))
+New bound: `a(5) >= 194314552299285`
+
+Factor more searched: $2 * 10^4$
+
+## Lucky Consecutive-Digit Numbers
 
 21, 43, 67, 87, 321, 4321, 4567, 6789, 78901, 432109, 9012345,
 67890123, 109876543, 123456789, 6543210987, 8901234567,
 **9876543210987**.
 
-| Old bound | New bound | Factor more searched |
-| --- | --- | --- |
-| `a(17) >= 10^10` | `a(18) >= 123456789012345` | $1 * 10^4$ |
+Lucky numbers with ascending or descending cyclic consecutive decimal digits. ([A118569](https://oeis.org/A118569))
 
-Lucky numbers with ascending or descending cyclic consecutive decimal digits.
+Old bound: `a(17) >= 10^10`
+
+New bound: `a(18) >= 123456789012345`
+
+Factor more searched: $1 * 10^4$
 
 ## Method
 
