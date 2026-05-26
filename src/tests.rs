@@ -80,7 +80,7 @@ fn prove_small(n: u64) -> bool {
             CandidateState::Lucky { .. } => return true,
             CandidateState::Composite { .. } => return false,
             CandidateState::Pending { .. } => {}
-            CandidateState::Inconclusive { .. } => unreachable!(),
+            CandidateState::Inconclusive => unreachable!(),
         }
         if factor <= sieve.alive {
             sieve.delete_every(factor);

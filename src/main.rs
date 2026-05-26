@@ -384,7 +384,7 @@ fn run() -> Result<(), AppError> {
         cli.scan_threshold,
         true,
     );
-    print_summary(&candidates, sieve.value_limit());
+    print_summary(&candidates);
 
     Ok(())
 }
@@ -422,9 +422,9 @@ fn search_with_sieve(
     announce: bool,
 ) {
     let mut factor_rank = 2_u64;
-    let mut pending = candidates.iter().filter(|c| c.is_pending()).count();
+    let mut pending = pending_candidate_indices(candidates);
 
-    while pending > 0 {
+    while !pending.is_empty() {
         let Some(odd_index) = sieve.select(factor_rank) else {
             break;
         };
@@ -433,9 +433,9 @@ fn search_with_sieve(
             break;
         }
 
-        pending -= apply_factor_to_candidates(factor, candidates, announce);
+        apply_factor_to_pending_candidates(factor, candidates, &mut pending, announce);
 
-        if pending == 0 {
+        if pending.is_empty() {
             break;
         }
 
@@ -451,106 +451,138 @@ fn search_with_sieve(
     }
 
     let final_factor_bound = sieve.value_limit() as u128;
-    for candidate in candidates.iter_mut() {
-        if let CandidateState::Pending { rank } = candidate.state {
-            if rank <= final_factor_bound {
-                candidate.state = CandidateState::Lucky { rank, proof_factor: sieve.value_limit() };
-                if announce {
-                    print_candidate(candidate);
-                }
+    for idx in pending {
+        if let CandidateState::Pending { rank } = candidates[idx].state {
+            candidates[idx].state = if rank <= final_factor_bound {
+                CandidateState::Lucky { rank, proof_factor: sieve.value_limit() }
             } else {
-                candidate.state = CandidateState::Inconclusive { rank };
-                if announce {
-                    print_candidate(candidate);
-                }
+                CandidateState::Inconclusive
+            };
+
+            if announce {
+                print_candidate(&candidates[idx]);
             }
         }
     }
 }
 
-fn apply_factor_to_candidates(factor: u64, candidates: &mut [Candidate], announce: bool) -> usize {
-    let factor128 = factor as u128;
-    let mut completed = 0_usize;
+fn pending_candidate_indices(candidates: &[Candidate]) -> Vec<usize> {
+    candidates.iter().enumerate().filter_map(|(idx, candidate)| candidate.is_pending().then_some(idx)).collect()
+}
 
-    for candidate in candidates {
-        let CandidateState::Pending { rank } = candidate.state else {
+#[cfg(test)]
+fn apply_factor_to_candidates(factor: u64, candidates: &mut [Candidate], announce: bool) -> usize {
+    let mut pending = pending_candidate_indices(candidates);
+    let before = pending.len();
+    apply_factor_to_pending_candidates(factor, candidates, &mut pending, announce);
+    before - pending.len()
+}
+
+fn apply_factor_to_pending_candidates(
+    factor: u64,
+    candidates: &mut [Candidate],
+    pending: &mut Vec<usize>,
+    announce: bool,
+) {
+    let factor128 = factor as u128;
+    let mut write = 0_usize;
+
+    for read in 0..pending.len() {
+        let idx = pending[read];
+        let CandidateState::Pending { rank } = candidates[idx].state else {
             continue;
         };
 
         if rank < factor128 {
-            candidate.state = CandidateState::Lucky { rank, proof_factor: factor };
-            completed += 1;
+            candidates[idx].state = CandidateState::Lucky { rank, proof_factor: factor };
             if announce {
-                print_candidate(candidate);
+                print_candidate(&candidates[idx]);
             }
             continue;
         }
 
         if rank % factor128 == 0 {
-            candidate.state = CandidateState::Composite { rank, deletion_factor: factor };
-            completed += 1;
+            candidates[idx].state = CandidateState::Composite { rank, deletion_factor: factor };
             if announce {
-                print_candidate(candidate);
+                print_candidate(&candidates[idx]);
             }
             continue;
         }
 
         let new_rank = rank - rank / factor128;
         if new_rank < factor128 {
-            candidate.state = CandidateState::Lucky { rank: new_rank, proof_factor: factor };
-            completed += 1;
+            candidates[idx].state = CandidateState::Lucky { rank: new_rank, proof_factor: factor };
             if announce {
-                print_candidate(candidate);
+                print_candidate(&candidates[idx]);
             }
         } else {
-            candidate.state = CandidateState::Pending { rank: new_rank };
+            candidates[idx].state = CandidateState::Pending { rank: new_rank };
+            pending[write] = idx;
+            write += 1;
         }
     }
 
-    completed
+    pending.truncate(write);
 }
 
-fn print_summary(candidates: &[Candidate], sieve_limit: u64) {
+fn print_summary(candidates: &[Candidate]) {
     println!();
-    println!("lucky sequences");
+    println!("candidate sequences");
 
-    for (shape, values) in lucky_sequences(candidates) {
-        let text = values.iter().map(u64::to_string).collect::<Vec<_>>().join(", ");
-        println!("{shape}: {text}");
-    }
-
-    let mut printed_inconclusive_header = false;
-    for candidate in candidates {
-        if matches!(candidate.state, CandidateState::Inconclusive { .. }) {
-            if !printed_inconclusive_header {
-                println!();
-                println!("inconclusive (sieve_limit={sieve_limit})");
-                printed_inconclusive_header = true;
-            }
-            print_inconclusive(candidate, sieve_limit);
-        }
+    for (shape, summary) in sequence_summaries(candidates) {
+        println!("{shape}");
+        println!("  {}", sequence_terms_text(&summary.terms));
     }
 }
 
-fn lucky_sequences(candidates: &[Candidate]) -> BTreeMap<&'static str, Vec<u64>> {
-    let mut sequences = BTreeMap::new();
+#[derive(Default)]
+struct SequenceSummary {
+    terms: Vec<SequenceTerm>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+struct SequenceTerm {
+    n: u64,
+    inconclusive: bool,
+}
+
+fn sequence_summaries(candidates: &[Candidate]) -> BTreeMap<&'static str, SequenceSummary> {
+    let mut summaries: BTreeMap<&'static str, SequenceSummary> = BTreeMap::new();
 
     for candidate in candidates {
-        if !matches!(candidate.state, CandidateState::Lucky { .. }) {
-            continue;
+        for label in candidate.labels() {
+            summaries.entry(label.shape()).or_default();
         }
+
+        let inconclusive = match candidate.state {
+            CandidateState::Lucky { .. } => false,
+            CandidateState::Inconclusive => true,
+            _ => continue,
+        };
 
         for label in candidate.labels() {
-            sequences.entry(label.shape).or_insert_with(Vec::new).push(candidate.n);
+            summaries.entry(label.shape()).or_default().terms.push(SequenceTerm { n: candidate.n, inconclusive });
         }
     }
 
-    for values in sequences.values_mut() {
-        values.sort_unstable();
-        values.dedup();
+    for summary in summaries.values_mut() {
+        summary.terms.sort_unstable();
+        summary.terms.dedup();
     }
 
-    sequences
+    summaries
+}
+
+fn sequence_terms_text(terms: &[SequenceTerm]) -> String {
+    if terms.is_empty() {
+        "none".to_string()
+    } else {
+        terms
+            .iter()
+            .map(|term| if term.inconclusive { format!("[INCONCLUSIVE: {}]", term.n) } else { term.n.to_string() })
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
 }
 
 fn print_candidate(candidate: &Candidate) {
@@ -573,27 +605,9 @@ fn print_candidate(candidate: &Candidate) {
                 deletion_factor
             );
         }
-        CandidateState::Inconclusive { .. } => {}
+        CandidateState::Inconclusive => {}
         CandidateState::Pending { .. } => {
             unreachable!("pending candidates are not ready to print")
         }
-    }
-}
-
-fn print_inconclusive(candidate: &Candidate, sieve_limit: u64) {
-    match candidate.state {
-        CandidateState::Inconclusive { rank } => {
-            println!(
-                "INCONCLUSIVE {:>13}  labels={} current_rank={} need factors beyond {} or more memory",
-                candidate.n,
-                candidate.labels_text(),
-                rank,
-                sieve_limit
-            );
-        }
-        CandidateState::Pending { .. } => {
-            unreachable!("pending states are finalized as inconclusive")
-        }
-        _ => {}
     }
 }

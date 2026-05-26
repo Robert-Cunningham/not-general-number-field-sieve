@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, fmt};
 
 pub type Generator = fn(u64, u64) -> Vec<Candidate>;
 
@@ -9,15 +9,59 @@ pub struct Candidate {
     pub state: CandidateState,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CandidateLabel {
-    pub shape: &'static str,
-    text: String,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CandidateLabel {
+    Repdigit { digit: u8, len: u8 },
+    Mersenne { exponent: u32 },
+    MersennePrimeExponent { exponent: u32 },
+    Fibonacci { index: u32 },
+    Lucas { index: u32 },
+    Tetranacci { index: u32 },
+    ConsecutiveDigits { direction: Direction, start: u8, len: u8 },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Direction {
+    Asc,
+    Desc,
 }
 
 impl CandidateLabel {
-    fn new(shape: &'static str, text: String) -> Self {
-        Self { shape, text }
+    pub fn shape(&self) -> &'static str {
+        match self {
+            Self::Repdigit { .. } => "repdigit",
+            Self::Mersenne { .. } => "mersenne",
+            Self::MersennePrimeExponent { .. } => "mersenne-prime-exp",
+            Self::Fibonacci { .. } => "fibonacci",
+            Self::Lucas { .. } => "lucas",
+            Self::Tetranacci { .. } => "tetranacci",
+            Self::ConsecutiveDigits { .. } => "consecutive-digits",
+        }
+    }
+}
+
+impl fmt::Display for CandidateLabel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Repdigit { digit, len } => write!(f, "repdigit(d={digit},len={len})"),
+            Self::Mersenne { exponent } => write!(f, "mersenne(k={exponent})"),
+            Self::MersennePrimeExponent { exponent } => write!(f, "mersenne-prime-exp(p={exponent})"),
+            Self::Fibonacci { index } => write!(f, "fibonacci(k={index})"),
+            Self::Lucas { index } => write!(f, "lucas(k={index})"),
+            Self::Tetranacci { index } => write!(f, "tetranacci(k={index})"),
+            Self::ConsecutiveDigits { direction, start, len } => {
+                write!(f, "consecutive-digits({},start={start},len={len})", direction.text())
+            }
+        }
+    }
+}
+
+impl Direction {
+    fn text(self) -> &'static str {
+        match self {
+            Self::Asc => "asc",
+            Self::Desc => "desc",
+        }
     }
 }
 
@@ -26,7 +70,7 @@ pub enum CandidateState {
     Pending { rank: u128 },
     Lucky { rank: u128, proof_factor: u64 },
     Composite { rank: u128, deletion_factor: u64 },
-    Inconclusive { rank: u128 },
+    Inconclusive,
 }
 
 impl Candidate {
@@ -53,7 +97,7 @@ impl Candidate {
         if self.labels.is_empty() {
             "unlabeled".to_string()
         } else {
-            self.labels.iter().map(|label| label.text.as_str()).collect::<Vec<_>>().join(";")
+            self.labels.iter().map(ToString::to_string).collect::<Vec<_>>().join(";")
         }
     }
 
@@ -68,7 +112,7 @@ struct CandidateBuilder {
 }
 
 impl CandidateBuilder {
-    fn add(&mut self, shape: &'static str, n: u128, min: u64, max: u64, text: String) {
+    fn add(&mut self, label: CandidateLabel, n: u128, min: u64, max: u64) {
         if n > u64::MAX as u128 || n < min as u128 || n > max as u128 {
             return;
         }
@@ -79,7 +123,6 @@ impl CandidateBuilder {
         }
 
         let labels = self.labels_by_n.entry(n).or_default();
-        let label = CandidateLabel::new(shape, text);
         if !labels.contains(&label) {
             labels.push(label);
         }
@@ -115,7 +158,7 @@ pub fn repdigits(min: u64, max: u64) -> Vec<Candidate> {
     for len in 1..=20_u8 {
         repunit = repunit * 10 + 1;
         for digit in [1_u8, 3, 5, 7, 9] {
-            out.add("repdigit", repunit * digit as u128, min, max, format!("repdigit(d={digit},len={len})"));
+            out.add(CandidateLabel::Repdigit { digit, len }, repunit * digit as u128, min, max);
         }
     }
     out.into_candidates()
@@ -124,7 +167,7 @@ pub fn repdigits(min: u64, max: u64) -> Vec<Candidate> {
 pub fn mersennes(min: u64, max: u64) -> Vec<Candidate> {
     let mut out = CandidateBuilder::default();
     for exponent in 1..=64_u32 {
-        out.add("mersenne", (1_u128 << exponent) - 1, min, max, format!("mersenne(k={exponent})"));
+        out.add(CandidateLabel::Mersenne { exponent }, (1_u128 << exponent) - 1, min, max);
     }
     out.into_candidates()
 }
@@ -133,35 +176,29 @@ pub fn mersenne_prime_exponents(min: u64, max: u64) -> Vec<Candidate> {
     let mut out = CandidateBuilder::default();
     for exponent in 2..=64_u32 {
         if is_prime_u32(exponent) {
-            out.add(
-                "mersenne-prime-exp",
-                (1_u128 << exponent) - 1,
-                min,
-                max,
-                format!("mersenne-prime-exp(p={exponent})"),
-            );
+            out.add(CandidateLabel::MersennePrimeExponent { exponent }, (1_u128 << exponent) - 1, min, max);
         }
     }
     out.into_candidates()
 }
 
 pub fn fibonacci(min: u64, max: u64) -> Vec<Candidate> {
-    recurrence("fibonacci", &[0, 1], min, max)
+    recurrence(|index| CandidateLabel::Fibonacci { index }, &[0, 1], min, max)
 }
 
 pub fn lucas(min: u64, max: u64) -> Vec<Candidate> {
-    recurrence("lucas", &[2, 1], min, max)
+    recurrence(|index| CandidateLabel::Lucas { index }, &[2, 1], min, max)
 }
 
 pub fn tetranacci(min: u64, max: u64) -> Vec<Candidate> {
-    recurrence("tetranacci", &[0, 0, 0, 1], min, max)
+    recurrence(|index| CandidateLabel::Tetranacci { index }, &[0, 0, 0, 1], min, max)
 }
 
-fn recurrence(name: &'static str, seeds: &[u128], min: u64, max: u64) -> Vec<Candidate> {
+fn recurrence(label: fn(u32) -> CandidateLabel, seeds: &[u128], min: u64, max: u64) -> Vec<Candidate> {
     let mut out = CandidateBuilder::default();
     let mut window = seeds.to_vec();
     for (index, n) in window.iter().copied().enumerate() {
-        out.add(name, n, min, max, format!("{name}(k={index})"));
+        out.add(label(index as u32), n, min, max);
     }
 
     for index in seeds.len() as u32.. {
@@ -171,7 +208,7 @@ fn recurrence(name: &'static str, seeds: &[u128], min: u64, max: u64) -> Vec<Can
         if n > u64::MAX as u128 {
             break;
         }
-        out.add(name, n, min, max, format!("{name}(k={index})"));
+        out.add(label(index), n, min, max);
         window.remove(0);
         window.push(n);
     }
@@ -181,19 +218,13 @@ fn recurrence(name: &'static str, seeds: &[u128], min: u64, max: u64) -> Vec<Can
 pub fn consecutive_digits(min: u64, max: u64) -> Vec<Candidate> {
     let mut out = CandidateBuilder::default();
     for start in 1_u8..=9 {
-        for (direction, step) in [("desc", -1_i8), ("asc", 1)] {
+        for (direction, step) in [(Direction::Desc, -1_i8), (Direction::Asc, 1)] {
             let mut n = start as u128;
             let mut digit = start;
             for len in 2_u8..=20 {
                 digit = ((digit as i8 + step).rem_euclid(10)) as u8;
                 n = n * 10 + digit as u128;
-                out.add(
-                    "consecutive-digits",
-                    n,
-                    min,
-                    max,
-                    format!("consecutive-digits({direction},start={start},len={len})"),
-                );
+                out.add(CandidateLabel::ConsecutiveDigits { direction, start, len }, n, min, max);
             }
         }
     }
