@@ -57,22 +57,6 @@ The values that are never struck out are the lucky numbers:
 
 Lucky numbers are of some interest because they share several statistical properties with primes.
 
-## Run
-The reported run took about 12 hours on a machine with 128GB of RAM. The sieve covers approximately $2^{40}$ integers. The log can be found in `pozzo.log`.
-
-## Usage
-
-```sh
-cargo test
-cargo run --release -- --memory-mib 114688
-```
-
-## What's with the name?
-From *[Waiting for Godot](https://www.sensortime.com/think_pig.html)*.
-
-## Credit
-I started this in 2019 and would certainly not have finished it without 2026-era coding agents, to whom most credit is due.
-
 ## Sequences
 Bold values are newly discovered.
 
@@ -164,3 +148,19 @@ Old bound: `a(17) >= 10^10`
 New bound: `a(18) >= 123456789012345`
 
 Search space expanded by a factor of $1 * 10^4$.
+
+## Run
+The reported run took about 12 hours on a machine with 128GB of RAM. The sieve covers approximately $2^{40}$ integers. The log can be found in `pozzo.log`.
+
+## Usage
+
+```sh
+cargo test
+cargo run --release -- --memory-mib 114688
+```
+
+## What's with the name?
+From *[Waiting for Godot](https://www.sensortime.com/think_pig.html)*.
+
+## Credit
+I started this in 2019 and would certainly not have finished it without 2026-era coding agents, to whom most credit is due.
