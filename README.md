@@ -2,7 +2,7 @@
   <h1>Pozzo: A Fast Lucky Number Checker</h1>
   <!-- <p><a href=""><em>"Think, pig!"</em></a></p> -->
   <p><em>"Think, pig!"</em></p>
-  <p>Pozzo tests large integers for luckiness. It is dramatically more efficient than its predecessors, increasing the number of values searched for the below lucky-number OEIS sequences by a <em>factor</em> of between 1,000 and 100,000,000.</p>
+  <p>Pozzo tests large integers for luckiness. It is dramatically more efficient than its predecessors, increasing the number of values searched for several OEIS sequences by a <em>factor</em> of between 1,000 and 100,000,000.</p>
 </div>
 
 
