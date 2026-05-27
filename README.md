@@ -1,13 +1,11 @@
 <div align="center">
   <h1>Pozzo: A Fast Lucky Number Checker</h1>
-  <!-- <p><a href=""><em>"Think, pig!"</em></a></p> -->
-  <p><em>"Think, pig!"</em></p>
   <p>Pozzo tests large integers for luckiness. It is dramatically more efficient than its predecessors, increasing the number of values searched for several OEIS sequences by a <em>factor</em> of between 1,000 and 100,000,000.</p>
 </div>
 
 
 ## Motivation
-> Hello! And what hackathon project are you presenting today, young man? 
+> And what hackathon project are you presenting today? 
 
 > The integer 4,398,046,511,103.
 
